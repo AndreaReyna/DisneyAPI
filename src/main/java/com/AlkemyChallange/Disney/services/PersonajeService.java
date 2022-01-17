@@ -28,20 +28,15 @@ public class PersonajeService {
     @Transactional
     public PersonajeDTO guardar(PersonajeDTO dto, MultipartFile imagen) throws Exception {
         try {
-            if (dto.getNombre() == null) {
-                throw new Exception("El nombre no puede estar vacio");
-            }
-            if (personajeRepository.buscarNombre(dto.getNombre()) != null) {
-                throw new Exception("Ya existe un personaje con ese nombre");
-            }
-
+            validaciones(dto);
             ModelMapper mp = new ModelMapper();
             Personaje personaje = mp.map(dto, Personaje.class);
 
-            if (!imagen.isEmpty()) {
-                personaje.setImagen(imagenService.copiar(imagen));
-                dto.setImagen(imagenService.copiar(imagen));
+            if (imagen.isEmpty()) {
+                throw new Exception("Debe ingresar una imagen");
             }
+            personaje.setImagen(imagenService.copiar(imagen));
+            dto.setImagen(imagenService.copiar(imagen));
 
             personajeRepository.save(personaje);
             dto.setId(personaje.getId());
@@ -125,6 +120,24 @@ public class PersonajeService {
             return "Personaje eliminado con exito";
         } catch (Exception e) {
             throw e;
+        }
+    }
+
+    public void validaciones(PersonajeDTO dto) throws Exception {
+        if (dto.getNombre() == null) {
+            throw new Exception("El nombre no puede estar vacio");
+        }
+        if (personajeRepository.buscarNombre(dto.getNombre()) != null) {
+            throw new Exception("Ya existe un personaje con ese nombre");
+        }
+        if (dto.getEdad() == null) {
+            throw new Exception("La edad del personaje no puede estar vacia");
+        }
+        if (dto.getHistoria() == null) {
+            throw new Exception("La historia del personaje no puede estar vacia");
+        }
+        if (dto.getPeso() == null) {
+            throw new Exception("El peso del personaje no puede estar vacio");
         }
     }
 }

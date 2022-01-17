@@ -31,33 +31,17 @@ public class PeliculaService {
 
     public PeliculaDTO guardar(PeliculaDTO dto, MultipartFile imagen) throws Exception {
         try {
-            if (personajeService.obtenerPersonajes().isEmpty()) {
-                throw new Exception("Deben existir personajes para crear la pelicula");
-            }
-            if (dto.getPersonajes().isEmpty()) {
-                throw new Exception("La pelicula debe tener al menos un personaje");
-            }
-            if (dto.getTitulo() == null) {
-                throw new Exception("La pelicula debe tener un titulo");
-            }
-            if (peliculaRepository.buscarPorTitulo(dto.getTitulo()) != null) {
-                throw new Exception("Ya existe una pelicula con ese titulo");
-            }
+            validaciones(dto);
 
-            if (generoService.obtenerGeneros().isEmpty()) {
-                throw new Exception("Deben existir generos para crear la pelicula");
-            }
-            if (dto.getGenero() == null) {
-                throw new Exception("La pelicula debe tener un genero");
-            }
             ModelMapper mp = new ModelMapper();
 
             Pelicula pelicula = mp.map(dto, Pelicula.class);
 
-            if (!imagen.isEmpty()) {
-                pelicula.setImagen(imagenService.copiar(imagen));
-                dto.setImagen(imagenService.copiar(imagen));
+            if (imagen.isEmpty()) {
+                throw new Exception("Debe ingresar una imagen");
             }
+            pelicula.setImagen(imagenService.copiar(imagen));
+            dto.setImagen(imagenService.copiar(imagen));
 
             peliculaRepository.save(pelicula);
 
@@ -89,7 +73,8 @@ public class PeliculaService {
                 throw new Exception("No hay peliculas cargadas");
             }
             for (Pelicula p : peliculas) {
-                dto.add(mp.map(p, PeliculaINF.class));
+                dto.add(mp.map(p, PeliculaINF.class
+                ));
             }
             return dto;
         } catch (Exception e) {
@@ -107,7 +92,8 @@ public class PeliculaService {
                 throw new Exception("No hay peliculas cargadas");
             }
             for (Pelicula p : peliculas) {
-                dto.add(mp.map(p, PeliculaINF.class));
+                dto.add(mp.map(p, PeliculaINF.class
+                ));
             }
             return dto;
         } catch (Exception e) {
@@ -123,7 +109,8 @@ public class PeliculaService {
             if (p == null) {
                 throw new Exception("No existe una pelicula asociada a ese id");
             }
-            PeliculaDTO dto = mp.map(p, PeliculaDTO.class);
+            PeliculaDTO dto = mp.map(p, PeliculaDTO.class
+            );
             return dto;
         } catch (Exception e) {
             throw e;
@@ -139,7 +126,8 @@ public class PeliculaService {
             if (p == null) {
                 throw new Exception("No se encuentran peliculas con ese titulo");
             }
-            dto = mp.map(p, PeliculaDTO.class);
+            dto = mp.map(p, PeliculaDTO.class
+            );
             return dto;
         } catch (Exception e) {
             throw e;
@@ -156,7 +144,8 @@ public class PeliculaService {
                 throw new Exception("No hay peliculas con ese genero");
             }
             for (Pelicula p : peliculas) {
-                dto.add(mp.map(p, PeliculaDTO.class));
+                dto.add(mp.map(p, PeliculaDTO.class
+                ));
             }
             return dto;
         } catch (Exception e) {
@@ -174,4 +163,30 @@ public class PeliculaService {
         }
     }
 
+    public void validaciones(PeliculaDTO dto) throws Exception {
+        if (personajeService.obtenerPersonajes().isEmpty()) {
+            throw new Exception("Deben existir personajes para crear la pelicula");
+        }
+        if (dto.getPersonajes().isEmpty()) {
+            throw new Exception("La pelicula debe tener al menos un personaje");
+        }
+        if (dto.getTitulo() == null) {
+            throw new Exception("La pelicula debe tener un titulo");
+        }
+        if (peliculaRepository.buscarPorTitulo(dto.getTitulo()) != null) {
+            throw new Exception("Ya existe una pelicula con ese titulo");
+        }
+        if (generoService.obtenerGeneros().isEmpty()) {
+            throw new Exception("Deben existir generos para crear la pelicula");
+        }
+        if (dto.getGenero() == null) {
+            throw new Exception("La pelicula debe tener un genero");
+        }
+        if (dto.getFechaCreacion() == null) {
+            throw new Exception("La pelicula debe tener una fecha de creación");
+        }
+        if (dto.getCalificacion() == null) {
+            throw new Exception("La pelicula debe tener una calificación");
+        }
+    }
 }

@@ -22,19 +22,16 @@ public class GeneroService {
 
     public GeneroDTO guardar(GeneroDTO dto, MultipartFile imagen) throws Exception {
         ModelMapper mp = new ModelMapper();
-        if (dto.getNombre() == null) {
-            throw new Exception("El genero debe tener un nombre");
-        }
-        if (generoRepository.buscarPorNombre(dto.getNombre()) != null) {
-            throw new Exception("Ya existe un genero con ese nombre");
+        validaciones(dto);
+        if (imagen.isEmpty()) {
+            throw new Exception("Debe ingresar una imagen");
         }
 
         Genero genero = mp.map(dto, Genero.class);
 
-        if (!imagen.isEmpty()) {
-            genero.setImagen(imagenService.copiar(imagen));
-            dto.setImagen(imagenService.copiar(imagen));
-        }
+        genero.setImagen(imagenService.copiar(imagen));
+        dto.setImagen(imagenService.copiar(imagen));
+
         generoRepository.save(genero);
         dto.setId(genero.getId());
         return dto;
@@ -95,6 +92,16 @@ public class GeneroService {
             return "Genero eliminado con exito";
         } catch (Exception e) {
             throw e;
+        }
+    }
+
+    public void validaciones(GeneroDTO dto) throws Exception {
+        if (dto.getNombre() == null) {
+            throw new Exception("El genero debe tener un nombre");
+        }
+
+        if (generoRepository.buscarPorNombre(dto.getNombre()) != null) {
+            throw new Exception("Ya existe un genero con ese nombre");
         }
     }
 }

@@ -31,11 +31,7 @@ public class UsuarioService implements UserDetailsService {
 
     @Transactional
     public String crear(UsuarioDTO dto) throws Exception {
-        if (usuarioRepository.findByUsername(dto.getUsername()) != null) {
-            throw new Exception("Ese nombre de usuario ya se encuentra registrado");
-        }
-        validarEmail(dto.getEmail());
-        validarClave(dto.getClave());
+        validaciones(dto);
 
         Usuario usuario = new Usuario();
         usuario.setUsername(dto.getUsername());
@@ -47,7 +43,7 @@ public class UsuarioService implements UserDetailsService {
             usuario.setRol(Rol.USER);
         }
         usuarioRepository.save(usuario);
-        //emailService.send(dto.getEmail());
+        emailService.send(dto.getEmail());
 
         return "Registro exitoso";
     }
@@ -62,19 +58,24 @@ public class UsuarioService implements UserDetailsService {
         }
     }
 
-    public void validarEmail(String email) throws Exception {
-        if (usuarioRepository.existsUsuarioByEmail(email)) {
+    public void validaciones(UsuarioDTO dto) throws Exception {
+        if (dto.getEmail() == null) {
+            throw new Exception("Debe ingresar un correo");
+        }
+        if (usuarioRepository.existsUsuarioByEmail(dto.getEmail())) {
             throw new Exception("El email ya se encuentra registrado");
         }
-        if (!(email.contains("@") && email.contains(".com"))) {
+        if (!(dto.getEmail().contains("@") && dto.getEmail().contains(".com"))) {
             throw new Exception("Debe ingresar un formato de email valido.");
         }
-    }
-
-    public void validarClave(String clave) throws Exception {
-        if (clave.length() < 6) {
+        if (usuarioRepository.findByUsername(dto.getUsername()) != null) {
+            throw new Exception("Ese nombre de usuario ya se encuentra registrado");
+        }
+        if (dto.getClave() == null) {
+            throw new Exception("Debe ingresar una contraseña");
+        }
+        if (dto.getClave().length() < 6) {
             throw new Exception("La contraseña debe tener al menos 6 caracteres");
         }
     }
-
 }
